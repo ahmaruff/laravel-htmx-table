@@ -88,10 +88,7 @@
         "laravel": {
             "providers": [
                 "Ahmaruff\\HtmxTable\\HtmxTableServiceProvider"
-            ],
-            "aliases": {
-                "HtmxTable": "Ahmaruff\\HtmxTable\\Facades\\HtmxTable"
-            }
+            ]
         }
     },
     "config": {
