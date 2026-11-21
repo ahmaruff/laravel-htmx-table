@@ -98,11 +98,19 @@
                             >
                                 <span>{{ $column->getLabel() }}</span>
                                 <span class="htmx-table-sort-indicator" aria-hidden="true">
-                                    @if ($isSorted)
-                                        {{ $dir === 'asc' ? '↑' : '↓' }}
-                                    @else
-                                        ↕
-                                    @endif
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                                        stroke="currentColor" stroke-width="1.5"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        @if ($isSorted)
+                                            @if ($dir === 'asc')
+                                                <path d="M8 12V4M5 7L8 4L11 7" />
+                                            @else
+                                                <path d="M8 4V12M5 9L8 12L11 9" />
+                                            @endif
+                                        @else
+                                            <path d="M8 3V13M5 6L8 3L11 6M5 10L8 13L11 10" />
+                                        @endif
+                                    </svg>
                                 </span>
                             </a>
                         @else
