@@ -64,7 +64,7 @@
             placeholder="Search..."
             class="htmx-table-search"
             hx-get="{{ $buildUrl(['page' => null, 'cursor' => null]) }}"
-            hx-trigger="input changed delay:300ms, search"
+            hx-trigger="input changed delay:600ms, search"
             hx-target="#htmx-table"
             hx-swap="outerHTML"
             hx-push-url="true"
