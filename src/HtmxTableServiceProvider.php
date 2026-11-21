@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ahmaruff\HtmxTable;
 
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 
 class HtmxTableServiceProvider extends ServiceProvider
@@ -13,9 +14,10 @@ class HtmxTableServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/laravel-htmx-table.php', 'laravel-htmx-table');
-
-        $this->app->singleton(HtmxTable::class);
+        $this->mergeConfigFrom(
+            __DIR__ . '/../config/laravel-htmx-table.php',
+            'laravel-htmx-table'
+        );
     }
 
     /**
@@ -23,22 +25,24 @@ class HtmxTableServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $this->loadViewsFrom(__DIR__.'/../resources/views', 'laravel-htmx-table');
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'htmx-table');
+
+        Blade::component('htmx-table::components.table', 'htmx-table::table');
 
         if (! $this->app->runningInConsole()) {
             return;
         }
 
         $this->publishes([
-            __DIR__.'/../config/laravel-htmx-table.php' => config_path('laravel-htmx-table.php'),
+            __DIR__ . '/../config/laravel-htmx-table.php' => config_path('laravel-htmx-table.php'),
         ], ['laravel-htmx-table', 'laravel-htmx-table-config']);
 
         $this->publishes([
-            __DIR__.'/../resources/views' => resource_path('views/vendor/laravel-htmx-table'),
+            __DIR__ . '/../resources/views' => resource_path('views/vendor/htmx-table'),
         ], ['laravel-htmx-table', 'laravel-htmx-table-views']);
 
         $this->publishes([
-            __DIR__.'/../public' => public_path('vendor/laravel-htmx-table'),
-        ], ['laravel-htmx-table', 'laravel-htmx-table-assets']);
+            __DIR__ . '/../resources/css/htmx-table.css' => public_path('vendor/htmx-table/htmx-table.css'),
+        ], ['laravel-htmx-table', 'laravel-htmx-table-styles']);
     }
 }
