@@ -100,7 +100,15 @@ class QueryEngine
         $sort = $sortState['sort'] ?? "";
         $dir = $sortState['dir'] ?? "asc";
 
+        $tieBreaker = $builder instanceof EloquentBuilder
+            ? $builder->getModel()->getKeyName()
+            : 'id';
+
         if ($sort === '') {
+            if ($this->paginationMode === HtmxTable::PAG_MODE_CURSOR) {
+                $builder->orderBy($tieBreaker, 'asc');
+            }
+
             return;
         }
 
@@ -115,16 +123,16 @@ class QueryEngine
         }
 
         if ($matchedColumn === null) {
+            if ($this->paginationMode === HtmxTable::PAG_MODE_CURSOR) {
+                $builder->orderBy($tieBreaker, 'asc');
+            }
+
             return;
         }
 
         $builder->orderBy($matchedColumn->getDataKey(), $dir);
 
         if ($this->paginationMode === HtmxTable::PAG_MODE_CURSOR) {
-            $tieBreaker = $builder instanceof EloquentBuilder
-                ? $builder->getModel()->getKeyName()
-                : 'id';
-
             $sortField = $matchedColumn->getDataKey();
             $unqualifiedSort = str_contains($sortField, '.')
                 ? substr($sortField, strrpos($sortField, '.') + 1)
