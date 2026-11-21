@@ -7,8 +7,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 it('merges the package config', function () {
-    expect(config('laravel-htmx-table.per_page'))->toBe(15)
-        ->and(config('laravel-htmx-table.query_params.search'))->toBe('search');
+    expect(config('htmx-table.per_page'))->toBe(15)
+        ->and(config('htmx-table.query_params.search'))->toBe('search');
 });
 
 it('loads the package views', function () {

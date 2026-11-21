@@ -151,7 +151,7 @@ class QueryEngine
 
     public static function queryParam(string $key, string $default): string
     {
-        $value = config("laravel-htmx-table.query_params.{$key}", $default);
+        $value = config("htmx-table.query_params.{$key}", $default);
 
         return is_string($value) && trim($value) !== '' ? trim($value) : $default;
     }

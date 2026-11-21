@@ -29,7 +29,7 @@ class HtmxTable
     {
         $this->builder = $builder;
 
-        $configuredPerPage = config('laravel-htmx-table.per_page', 15);
+        $configuredPerPage = config('htmx-table.per_page', 15);
         $this->paginationPerPage = is_int($configuredPerPage) && $configuredPerPage > 0
             ? $configuredPerPage
             : 15;

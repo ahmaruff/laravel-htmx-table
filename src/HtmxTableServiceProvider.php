@@ -15,8 +15,8 @@ class HtmxTableServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(
-            __DIR__ . '/../config/laravel-htmx-table.php',
-            'laravel-htmx-table'
+            __DIR__ . '/../config/htmx-table.php',
+            'htmx-table'
         );
     }
 
@@ -34,15 +34,15 @@ class HtmxTableServiceProvider extends ServiceProvider
         }
 
         $this->publishes([
-            __DIR__ . '/../config/laravel-htmx-table.php' => config_path('laravel-htmx-table.php'),
-        ], ['laravel-htmx-table', 'laravel-htmx-table-config']);
+            __DIR__ . '/../config/htmx-table.php' => config_path('htmx-table.php'),
+        ], ['htmx-table', 'htmx-table-config']);
 
         $this->publishes([
             __DIR__ . '/../resources/views' => resource_path('views/vendor/htmx-table'),
-        ], ['laravel-htmx-table', 'laravel-htmx-table-views']);
+        ], ['htmx-table', 'htmx-table-views']);
 
         $this->publishes([
             __DIR__ . '/../resources/css/htmx-table.css' => public_path('vendor/htmx-table/htmx-table.css'),
-        ], ['laravel-htmx-table', 'laravel-htmx-table-styles']);
+        ], ['htmx-table', 'htmx-table-styles']);
     }
 }

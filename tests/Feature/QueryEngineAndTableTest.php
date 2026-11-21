@@ -148,8 +148,8 @@ final class QueryEngineAndTableTest extends TestCase
 
     public function test_custom_query_params_and_per_page_config_are_respected(): void
     {
-        config()->set('laravel-htmx-table.per_page', 2);
-        config()->set('laravel-htmx-table.query_params', [
+        config()->set('htmx-table.per_page', 2);
+        config()->set('htmx-table.query_params', [
             'search' => 'q',
             'sort' => 'order_by',
             'dir' => 'order_dir',
