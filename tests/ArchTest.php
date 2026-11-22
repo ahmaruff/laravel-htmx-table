@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-arch()->preset()->php();
+arch('php preset')->preset()->php();
 
-arch()->preset()->security();
+arch('security preset')->preset()->security();
 
 arch('it will not use dd(), ddd(), env(), or exit()')
     ->expect(['dd', 'ddd', 'env', 'exit'])

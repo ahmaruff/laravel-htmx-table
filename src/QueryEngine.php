@@ -37,10 +37,8 @@ class QueryEngine
         return $this->builder;
     }
 
-    /**
-     * @return Paginator<int, mixed>|CursorPaginator<int, mixed>
-     */
-    public function paginate(): Paginator|CursorPaginator
+    // Laravel 10 and 12+ declare different paginator template arity.
+    public function paginate(): Paginator|CursorPaginator // @phpstan-ignore missingType.generics, missingType.generics
     {
         $builder = $this->apply();
         $perPage = $this->perPage;

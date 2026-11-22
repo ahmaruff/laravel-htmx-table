@@ -117,6 +117,19 @@ it('applies state to cursor paginator urls without losing the paginator cursor',
         ->and($url)->not->toContain('current-cursor');
 });
 
+it('preserves nested query params when applying state to paginator urls', function () {
+    $request = Request::create('/items', 'GET', [
+        'search' => 'alpha',
+    ]);
+
+    $state = TableState::fromRequest($request, HtmxTable::PAG_MODE_PAGINATE);
+    $url = $state->applyToUrl('https://example.test/items?page=2&filter%5Bstatus%5D=active');
+
+    expect($url)->toContain('page=2')
+        ->and($url)->toContain('search=alpha')
+        ->and($url)->toContain('filter%5Bstatus%5D=active');
+});
+
 it('falls back to default query param names when config values are empty', function () {
     config()->set('htmx-table.query_params.search', '');
 

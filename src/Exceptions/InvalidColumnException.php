@@ -7,10 +7,7 @@ namespace Ahmaruff\HtmxTable\Exceptions;
 use Ahmaruff\HtmxTable\Column;
 use InvalidArgumentException;
 
-/**
- * @phpstan-consistent-constructor
- */
-class InvalidColumnException extends InvalidArgumentException
+final class InvalidColumnException extends InvalidArgumentException
 {
     private mixed $items = null;
 
@@ -19,7 +16,7 @@ class InvalidColumnException extends InvalidArgumentException
         $type = get_debug_type($items);
         $expected = Column::class;
 
-        $exception = new static(
+        $exception = new self(
             "Every table column must be an instance of {$expected}, {$type} given.",
         );
         $exception->items = $items;

@@ -138,11 +138,7 @@ final class TableState
             return $url;
         }
 
-        $existingQuery = [];
-
-        if (isset($parts['query'])) {
-            parse_str($parts['query'], $existingQuery);
-        }
+        $existingQuery = Request::create($url)->query->all();
 
         $query = array_merge($this->extraQuery, $existingQuery);
 
