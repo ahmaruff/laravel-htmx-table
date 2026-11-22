@@ -2,11 +2,13 @@
 
 ## Requirements
 
-- PHP 8.3 or newer
-- Laravel 12 or 13
+- PHP 8.2–8.5
+- Laravel 10–13
 - HTMX 1.9 or newer (2.x recommended)
 
 The package uses HTMX's `closest` selector, so HTMX 1.9+ is required.
+
+Laravel 10 and 11 are end-of-life; support for them is best-effort. Composer may block these versions by default because of known security advisories.
 
 ## Install the package
 

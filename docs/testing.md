@@ -23,6 +23,21 @@ composer test:types
 composer test:unit
 ```
 
+## Supported matrix
+
+CI covers the following PHP and Laravel combinations:
+
+| PHP | Laravel | Testbench |
+| --- | --- | --- |
+| 8.2 | 10, 11, 12 | 8, 9, 10 |
+| 8.3 | 10, 11, 12, 13 | 8, 9, 10, 11 |
+| 8.4 | 11, 12, 13 | 9, 10, 11 |
+| 8.5 | 12, 13 | 10, 11 |
+
+Both `prefer-lowest` and `prefer-stable` dependency lanes run on Ubuntu. Windows runs one stable lane per Laravel major.
+
+Laravel 10 and 11 are end-of-life; their CI lanes are best-effort compatibility checks.
+
 ## Workbench
 
 Build and serve the local demo:
@@ -78,5 +93,8 @@ New public code must keep the package at 100% type coverage:
 ```bash
 composer test:types
 ```
+
+Class constants are untyped for PHP 8.2 compatibility and use targeted
+`@pest-ignore-type` markers. All other public types must remain at 100%.
 
 Next: [Troubleshooting](troubleshooting.md).

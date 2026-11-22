@@ -16,9 +16,20 @@ The package renders the table fragment on the server. Search, sorting, and pagin
 
 ## Requirements
 
-- PHP 8.3+
-- Laravel 12 or 13
+- PHP 8.2–8.5
+- Laravel 10–13
 - HTMX 1.9+ (2.x recommended; the package uses `closest` targeting)
+
+### Supported versions
+
+| PHP | Laravel |
+| --- | --- |
+| 8.2 | 10, 11, 12 |
+| 8.3 | 10, 11, 12, 13 |
+| 8.4 | 11, 12, 13 |
+| 8.5 | 12, 13 |
+
+Laravel 10 and 11 are end-of-life; support for them is best-effort. PHP 8.6 is not supported yet. Composer may block end-of-life Laravel versions because of known security advisories.
 
 ## Installation
 

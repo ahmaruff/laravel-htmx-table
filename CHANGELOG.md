@@ -4,6 +4,7 @@
 
 ### Added
 
+- PHP 8.2–8.5 and Laravel 10–13 compatibility, including best-effort support for end-of-life Laravel 10 and 11.
 - Domain glossary and architecture decision records.
 - Documentation for installation, quickstart, columns, search, sorting, pagination, customization, configuration, security, testing, and troubleshooting.
 - Optional table ids for CSS, JavaScript, and external HTMX triggers.
