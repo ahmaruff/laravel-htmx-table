@@ -61,7 +61,7 @@ jobs:
       - name: Prepare Testbench
         shell: bash
         run: |
-          mkdir -p vendor/orchestra/testbench-core/laravel/bootstrap/cache
+          php -r 'require "vendor/autoload.php"; $base = Orchestra\Testbench\default_skeleton_path(); if ($base === false) { fwrite(STDERR, "Unable to resolve Testbench skeleton path.\n"); exit(1); } $cache = $base.DIRECTORY_SEPARATOR."bootstrap".DIRECTORY_SEPARATOR."cache"; if (! is_dir($cache)) { mkdir($cache, 0777, true); } @chmod($cache, 0777);'
           composer run prepare
 
       - name: Show resolved versions
@@ -132,8 +132,7 @@ jobs:
       - name: Prepare Testbench
         shell: bash
         run: |
-          mkdir -p vendor/orchestra/testbench-core/laravel/bootstrap/cache
-          composer run prepare
+          php -r 'require "vendor/autoload.php"; $base = Orchestra\Testbench\default_skeleton_path(); if ($base === false) { fwrite(STDERR, "Unable to resolve Testbench skeleton path.\n"); exit(1); } $cache = $base.DIRECTORY_SEPARATOR."bootstrap".DIRECTORY_SEPARATOR."cache"; if (! is_dir($cache)) { mkdir($cache, 0777, true); } @chmod($cache, 0777);'
 
       - name: Test Suite
         run: composer test:unit
@@ -182,8 +181,7 @@ jobs:
       - name: Prepare Testbench
         shell: bash
         run: |
-          mkdir -p vendor/orchestra/testbench-core/laravel/bootstrap/cache
-          composer run prepare
+          php -r 'require "vendor/autoload.php"; $base = Orchestra\Testbench\default_skeleton_path(); if ($base === false) { fwrite(STDERR, "Unable to resolve Testbench skeleton path.\n"); exit(1); } $cache = $base.DIRECTORY_SEPARATOR."bootstrap".DIRECTORY_SEPARATOR."cache"; if (! is_dir($cache)) { mkdir($cache, 0777, true); } @chmod($cache, 0777);'
 
       - name: Test Suite
         run: vendor/bin/pest
