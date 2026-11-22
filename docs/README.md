@@ -6,6 +6,8 @@
 - [Searching and sorting](searching-sorting.md)
 - [Pagination](pagination.md)
 - [Customization](customization.md)
+- [Custom views](custom-views.md)
+- [Localization](localization.md)
 - [Configuration](configuration.md)
 - [Security](security.md)
 - [Testing](testing.md)

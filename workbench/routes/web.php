@@ -31,7 +31,9 @@ Route::get('/demo-table', function (Request $request) {
             Column::make('name')->searchable()->sortable(),
             Column::make('status')->searchable()->sortable(),
             Column::make('sku')->searchable()->sortable(),
-        ]);
+        ])
+        ->perPageOptions([5, 10, 15, 25])
+        ->locale($request->query('lang') === 'id' ? 'id' : null);
 
     match ($mode) {
         HtmxTable::PAG_MODE_SIMPLE => $table->simplePaginate(5),
@@ -39,7 +41,7 @@ Route::get('/demo-table', function (Request $request) {
         default => $table->paginate(5),
     };
 
-    if ($request->header('HX-Request')) {
+    if (HtmxTable::isFragmentRequest($request)) {
         return $table->render($request);
     }
 
@@ -64,7 +66,7 @@ Route::get('/demo-tables', function (Request $request) {
         ])
         ->simplePaginate(3);
 
-    if ($request->header('HX-Request')) {
+    if (HtmxTable::isFragmentRequest($request)) {
         $selected = $request->query('table', 'items');
 
         return $selected === 'compact'

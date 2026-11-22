@@ -30,7 +30,7 @@ public function index(Request $request)
         ])
         ->paginate(15);
 
-    if ($request->header('HX-Request')) {
+    if (HtmxTable::isFragmentRequest($request)) {
         return $table->render($request);
     }
 
@@ -38,8 +38,9 @@ public function index(Request $request)
 }
 ```
 
-The package does not inspect `HX-Request` itself. The host application decides
-whether a request receives the table fragment or a full page.
+`isFragmentRequest()` only returns true for normal HTMX requests. History-restore
+requests stay full-page requests so browser back/forward keeps the page layout.
+The host application still decides what to return.
 
 ## 3. Render the table
 
@@ -64,11 +65,33 @@ You can also render the view directly:
 {{ $table->render() }}
 ```
 
+## History and back/forward
+
+Keep the table on the same route as the full page. Do not push a fragment-only
+endpoint with `hx-push-url`.
+
+HTMX may request a URL from history with both `HX-Request` and
+`HX-History-Restore-Request`. Returning a fragment for that request makes the
+browser show only the table fragment on back/forward. `isFragmentRequest()`
+excludes those restore requests.
+
+You can also disable HTMX's history-restore-as-fragment behavior:
+
+```blade
+<meta name="htmx-config" content='{"historyRestoreAsHxRequest": false}'>
+```
+
+If you use a custom `hx-history-elt`, make sure it contains the table **and** the
+surrounding page layout, not only the table wrapper.
+
 ## How the interaction works
 
 - The search input, sort links, and pagination links issue HTMX `GET` requests.
 - The wrapper owns `hx-target="closest .htmx-table-wrapper"` and
   `hx-swap="outerHTML"`, so each trigger replaces its own table fragment.
+- The table is wrapped in `.htmx-table-scroll`; the toolbar and pagination stay
+  outside the horizontal scroll area.
+- The search input is refocused after a search request swaps the fragment.
 - The controller returns `$table->render($request)` for HTMX requests.
 - Search, sort, and pagination state travel in the query string.
 

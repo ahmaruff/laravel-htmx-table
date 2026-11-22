@@ -32,12 +32,19 @@ Or publish individual resources:
 php artisan vendor:publish --tag="htmx-table-config"
 php artisan vendor:publish --tag="htmx-table-views"
 php artisan vendor:publish --tag="htmx-table-assets"
+php artisan vendor:publish --tag="htmx-table-lang"
 ```
 
 The assets tag publishes the stylesheet to:
 
 ```text
 public/vendor/htmx-table/htmx-table.css
+```
+
+The language tag publishes translations to:
+
+```text
+lang/vendor/htmx-table
 ```
 
 ## Add HTMX and the stylesheet
@@ -55,8 +62,9 @@ The package does not bundle HTMX. Use the CDN or your application's asset pipeli
 php artisan about
 ```
 
-The package config is merged from `config/htmx-table.php` and the `htmx-table`
-view namespace is loaded. If you published views, they live under
-`resources/views/vendor/htmx-table`.
+The package config is merged from `config/htmx-table.php`, and the `htmx-table`
+view and translation namespaces are loaded. If you published views, they live
+under `resources/views/vendor/htmx-table`. Published translations live under
+`lang/vendor/htmx-table`.
 
 Next: [Quickstart](quickstart.md).

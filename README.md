@@ -49,9 +49,11 @@ Or publish individual resources:
 php artisan vendor:publish --tag="htmx-table-config"
 php artisan vendor:publish --tag="htmx-table-views"
 php artisan vendor:publish --tag="htmx-table-assets"
+php artisan vendor:publish --tag="htmx-table-lang"
 ```
 
 The stylesheet is published to `public/vendor/htmx-table/htmx-table.css`.
+Translations are published to `lang/vendor/htmx-table`.
 
 ## Setup
 
@@ -80,7 +82,7 @@ public function index(Request $request)
         ])
         ->paginate(15);
 
-    if ($request->header('HX-Request')) {
+    if (HtmxTable::isFragmentRequest($request)) {
         return $table->render($request);
     }
 
@@ -88,12 +90,16 @@ public function index(Request $request)
 }
 ```
 
+`isFragmentRequest()` treats normal HTMX requests as fragments, but keeps
+history-restore requests as full-page requests so browser back/forward does not
+replace the page with a table fragment alone.
+
 ```blade
 {{-- resources/views/users/index.blade.php --}}
 <x-htmx-table::table :table="$table" />
 ```
 
-The package does **not** decide when to return a fragment. The host application checks `HX-Request` (or any other condition) and returns `$table->render($request)` for HTMX requests. The same table can be rendered directly with `{{ $table->render() }}`.
+The package does **not** decide when to return a fragment. The host application checks `HtmxTable::isFragmentRequest($request)` (or any other condition) and returns `$table->render($request)` for HTMX requests. The same table can be rendered directly with `{{ $table->render() }}`.
 
 ## Columns
 
@@ -139,21 +145,74 @@ return [
         'dir' => 'dir',
         'page' => 'page',
         'cursor' => 'cursor',
+        'per_page' => 'per_page',
+    ],
+
+    'pagination' => [
+        'on_each_side' => 2,
     ],
 ];
 ```
 
-Generated URLs and the search input use the same aliases as request parsing. Query parameters unrelated to table state are preserved.
+Generated URLs, the search input, and the per-page selector use the same aliases as request parsing. Query parameters unrelated to table state are preserved.
 
 ## Pagination
 
 ```php
-$table->paginate(15);         // length-aware pagination
+$table->paginate(15);         // length-aware pagination with page numbers
 $table->simplePaginate(15);   // previous/next only
 $table->cursorPaginate(15);   // cursor pagination
 ```
 
+`paginate()` renders numbered page links with ellipses. The number of pages
+around the current page is controlled by `pagination.on_each_side`.
+
+Enable a per-page selector explicitly:
+
+```php
+$table->perPageOptions([10, 15, 25, 50])->paginate(15);
+```
+
+The selector uses the configured `per_page` query parameter, validates the
+request against the allowed options, and resets the current page when changed.
+The table default is always included in the selector.
+
 The mode must be selected before rendering. Cursor pagination always applies a deterministic tie-breaker (the model key, or `id` for query-builder sources). An invalid or expired cursor restarts from the first page.
+
+## Customization
+
+Use `classes()` for per-table styling and CSS variables for colors, spacing, and
+radii:
+
+```php
+$table->classes('table-compact', 'theme-dark');
+```
+
+For structural changes, use `view()` with a copied published view. `view()` is
+an escape hatch: the custom view owns the markup contract, including the
+`htmx-table-wrapper` target and swap attributes. See
+[Custom views](docs/custom-views.md).
+
+The table lives in a `.htmx-table-scroll` container, so the toolbar and
+pagination stay visible when the table overflows horizontally.
+
+## Localization
+
+The package ships English and Indonesian translations. Use the application
+locale or override it per table:
+
+```php
+$table->locale('id');
+$table->searchPlaceholder('Cari user...');
+```
+
+Publish the language files to add a locale or change copy:
+
+```bash
+php artisan vendor:publish --tag="htmx-table-lang"
+```
+
+See [Localization](docs/localization.md).
 
 ## Multiple tables
 
@@ -190,6 +249,8 @@ Then target it explicitly:
 - [Searching and sorting](docs/searching-sorting.md)
 - [Pagination](docs/pagination.md)
 - [Customization](docs/customization.md)
+- [Custom views](docs/custom-views.md)
+- [Localization](docs/localization.md)
 - [Configuration](docs/configuration.md)
 - [Security](docs/security.md)
 - [Testing](docs/testing.md)

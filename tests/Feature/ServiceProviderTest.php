@@ -19,12 +19,23 @@ final class ServiceProviderTest extends TestCase
         $config = ServiceProvider::pathsToPublish(HtmxTableServiceProvider::class, 'htmx-table-config');
         $views = ServiceProvider::pathsToPublish(HtmxTableServiceProvider::class, 'htmx-table-views');
         $assets = ServiceProvider::pathsToPublish(HtmxTableServiceProvider::class, 'htmx-table-assets');
+        $lang = ServiceProvider::pathsToPublish(HtmxTableServiceProvider::class, 'htmx-table-lang');
         $all = ServiceProvider::pathsToPublish(HtmxTableServiceProvider::class, 'htmx-table');
 
         $this->assertContains(config_path('htmx-table.php'), array_values($config));
         $this->assertContains(resource_path('views/vendor/htmx-table'), array_values($views));
         $this->assertContains(public_path('vendor/htmx-table/htmx-table.css'), array_values($assets));
-        $this->assertCount(3, $all);
+        $this->assertContains(lang_path('vendor/htmx-table'), array_values($lang));
+        $this->assertCount(4, $all);
+    }
+
+    public function test_package_translations_are_loaded(): void
+    {
+        $this->assertSame('Next', trans('htmx-table::messages.pagination.next'));
+
+        app()->setLocale('id');
+
+        $this->assertSame('Berikutnya', trans('htmx-table::messages.pagination.next'));
     }
 
     public function test_the_blade_component_is_registered(): void

@@ -11,5 +11,10 @@ return [
         'dir' => 'dir',
         'page' => 'page',
         'cursor' => 'cursor',
+        'per_page' => 'per_page',
+    ],
+
+    'pagination' => [
+        'on_each_side' => 2,
     ],
 ];

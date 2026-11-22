@@ -60,6 +60,14 @@ _Avoid_: Table name
 Output intentionally exempt from Blade escaping, produced only by an explicit renderer.
 _Avoid_: Raw output, safe HTML
 
+**Table locale**:
+The language used for a table's UI labels. It defaults to the application locale and can be overridden per table.
+_Avoid_: Language, translation
+
+**Search placeholder**:
+The hint text inside the search input. It falls back to a translation key unless set per table.
+_Avoid_: Search label, prompt
+
 **Tie-breaker**:
 A deterministic secondary ordering column required for stable cursor pagination.
 _Avoid_: Secondary sort

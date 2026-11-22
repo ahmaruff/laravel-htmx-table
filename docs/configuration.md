@@ -18,6 +18,11 @@ return [
         'dir' => 'dir',
         'page' => 'page',
         'cursor' => 'cursor',
+        'per_page' => 'per_page',
+    ],
+
+    'pagination' => [
+        'on_each_side' => 2,
     ],
 ];
 ```
@@ -28,10 +33,15 @@ The default page size for `paginate()`, `simplePaginate()`, and
 `cursorPaginate()` when no explicit value is passed. Non-positive or non-integer
 values fall back to `15`.
 
+## `pagination.on_each_side`
+
+Controls how many page numbers appear on each side of the current page for
+`paginate()`. Non-integer or negative values fall back to `2`.
+
 ## `query_params`
 
 Maps table-state fields to request keys. The same aliases are used for request
-parsing, the search input's `name`, and generated URLs.
+parsing, the search input's `name`, the per-page selector, and generated URLs.
 
 Keep aliases unique. Empty values fall back to the defaults above.
 

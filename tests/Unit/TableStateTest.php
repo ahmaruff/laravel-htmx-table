@@ -130,6 +130,32 @@ it('preserves nested query params when applying state to paginator urls', functi
         ->and($url)->toContain('filter%5Bstatus%5D=active');
 });
 
+it('parses and preserves per page state', function () {
+    $request = Request::create('/items', 'GET', [
+        'search' => 'alpha',
+        'per_page' => '25',
+        'filter' => 'active',
+    ]);
+
+    $state = TableState::fromRequest($request, HtmxTable::PAG_MODE_PAGINATE)->withPerPage(25);
+
+    expect($state->perPage)->toBe(25)
+        ->and($state->url('/items'))->toContain('per_page=25')
+        ->and($state->url('/items'))->toContain('filter=active')
+        ->and($state->applyToUrl('https://example.test/items?page=2&per_page=5'))->toContain('per_page=25')
+        ->and($state->applyToUrl('https://example.test/items?page=2&per_page=5'))->not->toContain('per_page=5');
+});
+
+it('ignores invalid per page state', function () {
+    $request = Request::create('/items', 'GET', [
+        'per_page' => '0',
+    ]);
+
+    $state = TableState::fromRequest($request, HtmxTable::PAG_MODE_PAGINATE);
+
+    expect($state->perPage)->toBeNull();
+});
+
 it('falls back to default query param names when config values are empty', function () {
     config()->set('htmx-table.query_params.search', '');
 

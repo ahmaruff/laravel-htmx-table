@@ -53,10 +53,13 @@ The workbench routes are:
 /demo-table?mode=paginate
 /demo-table?mode=simple
 /demo-table?mode=cursor
+/demo-table?lang=id
 /demo-tables
 ```
 
-`/demo-tables` renders two independent tables on one page.
+`/demo-tables` renders two independent tables on one page. The demo routes use
+`HtmxTable::isFragmentRequest()` so history restore requests receive the full
+page.
 
 ## Testing a table
 
@@ -77,13 +80,19 @@ expect($html)->toContain('Alpha');
 
 ## Testing HTMX requests
 
-The package does not check `HX-Request`; that is the host application's
-responsibility. Test your route with and without the header:
+The package does not decide when to return a fragment; that is the host
+application's responsibility. Test your route with normal HTMX and
+history-restore headers:
 
 ```php
 $this->get('/users', ['HX-Request' => 'true'])
     ->assertOk()
     ->assertSee('htmx-table-wrapper');
+
+$this->get('/users', [
+    'HX-Request' => 'true',
+    'HX-History-Restore-Request' => 'true',
+])->assertOk()->assertSee('users.index');
 ```
 
 ## Type coverage

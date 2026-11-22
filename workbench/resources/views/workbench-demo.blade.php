@@ -20,6 +20,7 @@
             <a href="/demo-table?mode=paginate">Standard Paginate</a>
             <a href="/demo-table?mode=simple">Simple Paginate</a>
             <a href="/demo-table?mode=cursor">Cursor Paginate</a>
+            <a href="/demo-table?mode=paginate&lang=id">Indonesian Locale</a>
             <a href="/demo-tables">Multiple Tables</a>
         </div>
 

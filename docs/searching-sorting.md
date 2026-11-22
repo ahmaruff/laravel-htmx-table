@@ -38,6 +38,7 @@ The table state is:
 - `dir` — `asc` or `desc`
 - `page` — the page for `paginate()` / `simplePaginate()`
 - `cursor` — the cursor for `cursorPaginate()`
+- `per_page` — the selected page size when `perPageOptions()` is enabled
 
 Search and sort links reset `page` and `cursor` so a new result set starts at
 the beginning.
@@ -56,8 +57,8 @@ Aliases are configured in `config/htmx-table.php`:
 ],
 ```
 
-The same aliases are used for request parsing, the search input's `name`, and
-generated URLs. Keep the aliases unique.
+The same aliases are used for request parsing, the search input's `name`, the
+per-page selector, and generated URLs. Keep the aliases unique.
 
 ## Preserved query parameters
 

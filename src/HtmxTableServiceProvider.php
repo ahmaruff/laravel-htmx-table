@@ -26,6 +26,7 @@ class HtmxTableServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'htmx-table');
+        $this->loadTranslationsFrom(__DIR__.'/../lang', 'htmx-table');
 
         Blade::anonymousComponentNamespace('htmx-table::components', 'htmx-table');
 
@@ -44,5 +45,9 @@ class HtmxTableServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/../resources/css/htmx-table.css' => public_path('vendor/htmx-table/htmx-table.css'),
         ], ['htmx-table', 'htmx-table-assets']);
+
+        $this->publishes([
+            __DIR__.'/../lang' => lang_path('vendor/htmx-table'),
+        ], ['htmx-table', 'htmx-table-lang']);
     }
 }

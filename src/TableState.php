@@ -10,7 +10,7 @@ final class TableState
 {
     /**
      * @param  'asc'|'desc'  $dir
-     * @param  array{search: string, sort: string, dir: string, page: string, cursor: string}  $aliases
+     * @param  array{search: string, sort: string, dir: string, page: string, cursor: string, per_page: string}  $aliases
      * @param  array<string, mixed>  $extraQuery
      */
     private function __construct(
@@ -19,6 +19,7 @@ final class TableState
         public readonly string $dir,
         public readonly ?int $page,
         public readonly ?string $cursor,
+        public readonly ?int $perPage,
         private readonly string $paginationMode,
         private readonly array $aliases,
         private readonly array $extraQuery,
@@ -51,6 +52,13 @@ final class TableState
             }
         }
 
+        $rawPerPage = $query[$aliases['per_page']] ?? null;
+        $perPage = filter_var($rawPerPage, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+
+        if ($perPage === false) {
+            $perPage = null;
+        }
+
         $extraQuery = $query;
 
         foreach ($aliases as $alias) {
@@ -63,14 +71,30 @@ final class TableState
             dir: $dir,
             page: $page,
             cursor: $cursor,
+            perPage: $perPage,
             paginationMode: $paginationMode,
             aliases: $aliases,
             extraQuery: $extraQuery,
         );
     }
 
+    public function withPerPage(?int $perPage): self
+    {
+        return new self(
+            search: $this->search,
+            sort: $this->sort,
+            dir: $this->dir,
+            page: $this->page,
+            cursor: $this->cursor,
+            perPage: $perPage,
+            paginationMode: $this->paginationMode,
+            aliases: $this->aliases,
+            extraQuery: $this->extraQuery,
+        );
+    }
+
     /**
-     * @return array{search: string, sort: string, dir: string, page: string, cursor: string}
+     * @return array{search: string, sort: string, dir: string, page: string, cursor: string, per_page: string}
      */
     public static function aliases(): array
     {
@@ -80,6 +104,7 @@ final class TableState
             'dir' => self::queryParam('dir', 'dir'),
             'page' => self::queryParam('page', 'page'),
             'cursor' => self::queryParam('cursor', 'cursor'),
+            'per_page' => self::queryParam('per_page', 'per_page'),
         ];
     }
 
@@ -101,7 +126,7 @@ final class TableState
     }
 
     /**
-     * @param  array{search?: string|null, sort?: string|null, dir?: string|null, page?: int|string|null, cursor?: string|null}  $overrides
+     * @param  array{search?: string|null, sort?: string|null, dir?: string|null, page?: int|string|null, cursor?: string|null, per_page?: int|string|null}  $overrides
      */
     public function url(string $baseUrl, array $overrides = []): string
     {
@@ -110,6 +135,7 @@ final class TableState
         $dir = $overrides['dir'] ?? ($sort !== null && $sort !== '' ? $this->dir : null);
         $page = $overrides['page'] ?? null;
         $cursor = $overrides['cursor'] ?? null;
+        $perPage = array_key_exists('per_page', $overrides) ? $overrides['per_page'] : $this->perPage;
 
         $query = $this->extraQuery;
 
@@ -119,6 +145,7 @@ final class TableState
             'dir' => $dir,
             'page' => $page,
             'cursor' => $cursor,
+            'per_page' => $perPage,
         ] as $key => $value) {
             if ($value === null || $value === '') {
                 continue;
@@ -142,7 +169,7 @@ final class TableState
 
         $query = array_merge($this->extraQuery, $existingQuery);
 
-        foreach (['search', 'sort', 'dir'] as $key) {
+        foreach (['search', 'sort', 'dir', 'per_page'] as $key) {
             unset($query[$this->alias($key)]);
         }
 
@@ -150,6 +177,7 @@ final class TableState
             'search' => $this->search !== '' ? $this->search : null,
             'sort' => $this->sort !== '' ? $this->sort : null,
             'dir' => $this->sort !== '' ? $this->dir : null,
+            'per_page' => $this->perPage,
         ];
 
         foreach ($state as $key => $value) {
