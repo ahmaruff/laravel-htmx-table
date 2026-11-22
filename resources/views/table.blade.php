@@ -1,72 +1,25 @@
 @php
     $baseUrl = url()->current();
-
-    $search = $state['search'] ?? '';
-    $sort = $state['sort'] ?? '';
-    $dir = $state['dir'] ?? '';
-
-    $buildUrl = static function(array $overrides = []) use ($baseUrl, $search, $sort, $dir): string {
-        $params = array_filter([
-            'search' => $search !== '' ? $search : null,
-            'sort' => $sort !== '' ? $sort : null,
-            'dir' => ($sort !== '' || isset($overrides['sort'])) ? $dir : null,
-        ], static fn ($value) => $value !== null && $value !== '');
-
-        foreach ($overrides as $key => $value) {
-            if ($value === null || $value === '') {
-                unset($params[$key]);
-            } else {
-                $params[$key] = $value;
-            }
-        }
-
-        $query = http_build_query($params);
-        return $query !== '' ? "{$baseUrl}?{$query}" : $baseUrl;
-    };
-
-    $appendStateToPaginatorUrl = static function (?string $paginatorUrl) use ($search, $sort, $dir): ?string {
-        if ($paginatorUrl === null) {
-            return null;
-        }
-
-        $parts = parse_url($paginatorUrl);
-        $existingQuery = [];
-
-        if (isset($parts['query'])) {
-            parse_str($parts['query'], $existingQuery);
-        }
-
-        $merged = array_filter([
-            ...$existingQuery,
-            'search' => $search !== '' ? $search : null,
-            'sort' => $sort !== '' ? $sort : null,
-            'dir' => $sort !== '' ? $dir : null,
-        ], static fn ($value) => $value !== null && $value !== '');
-
-        $scheme = isset($parts['scheme']) ? "{$parts['scheme']}://" : '';
-        $host = $parts['host'] ?? '';
-        $port = isset($parts['port']) ? ":{$parts['port']}" : '';
-        $path = $parts['path'] ?? url()->current();
-        $queryString = http_build_query($merged);
-
-        return $queryString !== ''
-            ? "{$scheme}{$host}{$port}{$path}?{$queryString}"
-            : "{$scheme}{$host}{$port}{$path}";
-    };
+    $search = $state->search;
+    $sort = $state->sort;
+    $dir = $state->dir;
 @endphp
 
-<div id="htmx-table" class="htmx-table-wrapper">
+<div
+    @if ($id) id="{{ $id }}" @endif
+    class="htmx-table-wrapper"
+    hx-target="closest .htmx-table-wrapper"
+    hx-swap="outerHTML"
+>
     <div class="htmx-table-toolbar">
         <input
             type="search"
-            name="search"
+            name="{{ $state->alias('search') }}"
             value="{{ $search }}"
             placeholder="Search..."
             class="htmx-table-search"
-            hx-get="{{ $buildUrl(['page' => null, 'cursor' => null]) }}"
+            hx-get="{{ $state->url($baseUrl, ['search' => '']) }}"
             hx-trigger="input changed delay:600ms, search"
-            hx-target="#htmx-table"
-            hx-swap="outerHTML"
             hx-push-url="true"
             hx-include="this"
         />
@@ -82,18 +35,20 @@
                         $isSorted = $isSortable && $sort === $key;
                         $nextDir = ($isSorted && $dir === 'asc') ? 'desc' : 'asc';
                         $sortUrl = $isSortable
-                            ? $buildUrl(['sort' => $key, 'dir' => $nextDir, 'page' => null, 'cursor' => null])
+                            ? $state->url($baseUrl, ['sort' => $key, 'dir' => $nextDir, 'page' => null, 'cursor' => null])
                             : null;
                     @endphp
 
-                    <th scope="col" class="htmx-table-th {{ $isSorted ? 'is-sorted' : '' }}">
+                    <th
+                        scope="col"
+                        class="htmx-table-th {{ $isSorted ? 'is-sorted' : '' }}"
+                        @if ($isSorted) aria-sort="{{ $dir === 'asc' ? 'ascending' : 'descending' }}" @endif
+                    >
                         @if ($isSortable && $sortUrl !== null)
                             <a
                                 href="{{ $sortUrl }}"
                                 class="htmx-table-sort-link"
                                 hx-get="{{ $sortUrl }}"
-                                hx-target="#htmx-table"
-                                hx-swap="outerHTML"
                                 hx-push-url="true"
                             >
                                 <span>{{ $column->getLabel() }}</span>
@@ -125,7 +80,7 @@
                 <tr class="htmx-table-tr">
                     @foreach ($columns as $column)
                         <td class="htmx-table-td">
-                            {!! $column->resolveCell($row) !!}
+                            {{ $column->resolveCell($row) }}
                         </td>
                     @endforeach
                 </tr>
@@ -140,19 +95,20 @@
     </table>
 
     @php
-        $prevUrl = $appendStateToPaginatorUrl($rows->previousPageUrl());
-        $nextUrl = $appendStateToPaginatorUrl($rows->nextPageUrl());
+        $previousUrl = $rows->previousPageUrl();
+        $nextUrl = $rows->nextPageUrl();
+
+        $previousUrl = $previousUrl !== null ? $state->applyToUrl($previousUrl) : null;
+        $nextUrl = $nextUrl !== null ? $state->applyToUrl($nextUrl) : null;
     @endphp
 
     <div class="htmx-table-pagination">
         <div class="htmx-table-pagination-actions">
-            @if ($prevUrl !== null)
+            @if ($previousUrl !== null)
                 <a
-                    href="{{ $prevUrl }}"
+                    href="{{ $previousUrl }}"
                     class="htmx-table-page-btn"
-                    hx-get="{{ $prevUrl }}"
-                    hx-target="#htmx-table"
-                    hx-swap="outerHTML"
+                    hx-get="{{ $previousUrl }}"
                     hx-push-url="true"
                 >
                     Previous
@@ -168,8 +124,6 @@
                     href="{{ $nextUrl }}"
                     class="htmx-table-page-btn"
                     hx-get="{{ $nextUrl }}"
-                    hx-target="#htmx-table"
-                    hx-swap="outerHTML"
                     hx-push-url="true"
                 >
                     Next

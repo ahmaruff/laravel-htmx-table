@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Ahmaruff\HtmxTable\Tests\Feature;
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Request;
-
 use Ahmaruff\HtmxTable\Column;
-use Ahmaruff\HtmxTable\HtmxTable;
+use Ahmaruff\HtmxTable\Exceptions\InvalidColumnException;
 use Ahmaruff\HtmxTable\Exceptions\MissingPaginationModeException;
+use Ahmaruff\HtmxTable\HtmxTable;
 use Ahmaruff\HtmxTable\Tests\TestCase;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 final class QueryEngineAndTableTest extends TestCase
 {
@@ -46,8 +46,7 @@ final class QueryEngineAndTableTest extends TestCase
         $ids = collect($paginator->items())->pluck('id')->all();
 
         // secret_code matches FINDME, but is not marked searchable so no rows match
-        $this->assertSame([], $ids); 
-
+        $this->assertSame([], $ids);
 
         $nameSearchRequest = Request::create('/items', 'GET', ['search' => 'alp']);
         $matchedNames = collect(
@@ -56,7 +55,7 @@ final class QueryEngineAndTableTest extends TestCase
                 ->paginate(10)
                 ->render($nameSearchRequest)
                 ->getData()['rows']
-                ->items()
+                ->items(),
         )->pluck('name')->all();
 
         // name match alp
@@ -82,7 +81,7 @@ final class QueryEngineAndTableTest extends TestCase
                 ->paginate(10)
                 ->render($ignoredSortRequest)
                 ->getData()['rows']
-                ->items()
+                ->items(),
         )->pluck('id')->all();
 
         $this->assertSame([1, 2, 3, 4], $defaultOrderIds);
@@ -99,7 +98,7 @@ final class QueryEngineAndTableTest extends TestCase
                 ->paginate(10)
                 ->render($invalidDirRequest)
                 ->getData()['rows']
-                ->items()
+                ->items(),
         )->pluck('name')->all();
 
         $this->assertSame(['Alpha', 'Beta', 'Delta', 'Gamma'], $sortedNames);
@@ -167,16 +166,23 @@ final class QueryEngineAndTableTest extends TestCase
             'order_dir' => 'desc',
         ]);
 
-        $viewData = HtmxTable::make(DB::table('items'))
+        $table = HtmxTable::make(DB::table('items'))
             ->columns($columns)
-            ->paginate() // uses configured per_page = 2
-            ->render($request)
-            ->getData();
+            ->paginate(); // uses configured per_page = 2
 
-        $this->assertSame(2, $viewData['perPage']);
-        $this->assertSame('a', $viewData['state']['search']);
-        $this->assertSame('name', $viewData['state']['sort']);
-        $this->assertSame('desc', $viewData['state']['dir']);
+        $viewData = $table->render($request)->getData();
+
+        $this->assertSame(2, $table->getPerPage());
+        $this->assertSame('a', $viewData['state']->search);
+        $this->assertSame('name', $viewData['state']->sort);
+        $this->assertSame('desc', $viewData['state']->dir);
+    }
+
+    public function test_columns_must_be_column_instances(): void
+    {
+        $this->expectException(InvalidColumnException::class);
+
+        HtmxTable::make(DB::table('items'))->columns(['name']);
     }
 
     public function test_render_throws_when_pagination_mode_is_missing(): void

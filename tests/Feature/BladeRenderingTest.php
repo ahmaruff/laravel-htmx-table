@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace Ahmaruff\HtmxTable\Tests\Feature;
 
+use Ahmaruff\HtmxTable\Column;
+use Ahmaruff\HtmxTable\HtmxTable;
+use Ahmaruff\HtmxTable\Tests\TestCase;
 use DOMDocument;
+use DOMElement;
+use DOMNode;
 use DOMXPath;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
-use Ahmaruff\HtmxTable\Tests\TestCase;
-use Ahmaruff\HtmxTable\Column;
-use Ahmaruff\HtmxTable\HtmxTable;
 
 final class BladeRenderingTest extends TestCase
 {
@@ -35,6 +36,7 @@ final class BladeRenderingTest extends TestCase
         ]);
 
         $html = HtmxTable::make(DB::table('items'))
+            ->id('items-table')
             ->columns([
                 Column::make('name')->searchable()->sortable(),
                 Column::make('status')->sortable(),
@@ -46,16 +48,21 @@ final class BladeRenderingTest extends TestCase
         $xpath = $this->makeXpath($html);
 
         // Wrapper, table, header, and search input use single semantic htmx-table-* classes
-        $this->assertCount(1, $xpath->query("//div[@id='htmx-table' and contains(concat(' ', normalize-space(@class), ' '), ' htmx-table-wrapper ')]"));
+        $wrappers = $xpath->query("//div[@id='items-table' and contains(concat(' ', normalize-space(@class), ' '), ' htmx-table-wrapper ')]");
+        $this->assertCount(1, $wrappers);
         $this->assertCount(1, $xpath->query("//table[contains(concat(' ', normalize-space(@class), ' '), ' htmx-table ')]"));
+
+        $wrapper = $wrappers->item(0);
+        $this->assertSame('closest .htmx-table-wrapper', $this->getAttributeValue($wrapper, 'hx-target'));
+        $this->assertSame('outerHTML', $this->getAttributeValue($wrapper, 'hx-swap'));
 
         $searchInputs = $xpath->query("//input[@name='search' and contains(concat(' ', normalize-space(@class), ' '), ' htmx-table-search ')]");
         $this->assertCount(1, $searchInputs);
 
         $searchInput = $searchInputs->item(0);
         $this->assertSame('a', $this->getAttributeValue($searchInput, 'value'));
-        $this->assertSame('#htmx-table', $this->getAttributeValue($searchInput, 'hx-target'));
-        $this->assertSame('outerHTML', $this->getAttributeValue($searchInput, 'hx-swap'));
+        $this->assertNull($this->getAttributeValue($searchInput, 'hx-target'));
+        $this->assertNull($this->getAttributeValue($searchInput, 'hx-swap'));
 
         // Active 'name' sort header toggles to 'desc', preserves 'search=a', and resets 'page'/'cursor'
         $sortLinks = $xpath->query("//th[contains(concat(' ', normalize-space(@class), ' '), ' is-sorted ')]//a[@hx-get]");
@@ -106,9 +113,9 @@ final class BladeRenderingTest extends TestCase
 
     private function makeXpath(string $html): DOMXPath
     {
-        $doc = new DOMDocument();
+        $doc = new DOMDocument;
         $previous = libxml_use_internal_errors(true);
-        $doc->loadHTML('<?xml encoding="utf-8" ?>' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        $doc->loadHTML('<?xml encoding="utf-8" ?>'.$html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         libxml_clear_errors();
         libxml_use_internal_errors($previous);
 
@@ -121,6 +128,7 @@ final class BladeRenderingTest extends TestCase
     private function parseQuery(string $url): array
     {
         $queryString = parse_url($url, PHP_URL_QUERY);
+
         if (! is_string($queryString) || $queryString === '') {
             return [];
         }
@@ -131,9 +139,9 @@ final class BladeRenderingTest extends TestCase
         return $params;
     }
 
-    private function getAttributeValue(\DOMNode|null $node, string $attribute): ?string
+    private function getAttributeValue(?DOMNode $node, string $attribute): ?string
     {
-        if (! $node instanceof \DOMElement) {
+        if (! $node instanceof DOMElement) {
             return null;
         }
 

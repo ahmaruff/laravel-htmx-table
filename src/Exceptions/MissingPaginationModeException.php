@@ -6,6 +6,9 @@ namespace Ahmaruff\HtmxTable\Exceptions;
 
 use InvalidArgumentException;
 
+/**
+ * @phpstan-consistent-constructor
+ */
 class MissingPaginationModeException extends InvalidArgumentException
 {
     private ?string $context = null;

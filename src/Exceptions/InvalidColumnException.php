@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Ahmaruff\HtmxTable\Exceptions;
 
+use Ahmaruff\HtmxTable\Column;
 use InvalidArgumentException;
 
-use Ahmaruff\HtmxTable\Column;
-
+/**
+ * @phpstan-consistent-constructor
+ */
 class InvalidColumnException extends InvalidArgumentException
 {
     private mixed $items = null;
@@ -18,7 +20,7 @@ class InvalidColumnException extends InvalidArgumentException
         $expected = Column::class;
 
         $exception = new static(
-            "Every table column must be an instance of {$expected}, {$type} given."
+            "Every table column must be an instance of {$expected}, {$type} given.",
         );
         $exception->items = $items;
 
@@ -28,6 +30,7 @@ class InvalidColumnException extends InvalidArgumentException
     public function setItems(mixed $items): static
     {
         $this->items = $items;
+
         return $this;
     }
 

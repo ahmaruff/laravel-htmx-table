@@ -6,13 +6,21 @@ namespace Ahmaruff\HtmxTable;
 
 use Illuminate\Support\Str;
 
+/**
+ * @phpstan-consistent-constructor
+ */
 class Column
 {
     private string $key;
+
     private ?string $dataKey = null;
+
     private ?string $label = null;
+
     private bool $sortable = false;
+
     private bool $searchable = false;
+
     private mixed $renderer = null;
 
     public function __construct(string $key)
@@ -27,19 +35,20 @@ class Column
 
     public function getKey(): string
     {
-        return $this->key;        
+        return $this->key;
     }
 
     public function label(?string $label): static
     {
         $this->label = $label;
+
         return $this;
     }
 
     public function getLabel(): string
     {
-        if(is_null($this->label)) {
-            return Str::of($this->key)->afterLast(".")->headline()->toString();
+        if (is_null($this->label)) {
+            return Str::of($this->key)->afterLast('.')->headline()->toString();
         }
 
         return $this->label;
@@ -48,6 +57,7 @@ class Column
     public function dataKey(?string $key): static
     {
         $this->dataKey = $key;
+
         return $this;
     }
 
@@ -59,6 +69,7 @@ class Column
     public function sortable(bool $sortable = true): static
     {
         $this->sortable = $sortable;
+
         return $this;
     }
 
@@ -70,6 +81,7 @@ class Column
     public function searchable(bool $searchable = true): static
     {
         $this->searchable = $searchable;
+
         return $this;
     }
 
@@ -81,12 +93,13 @@ class Column
     public function render(callable $renderer): static
     {
         $this->renderer = $renderer;
+
         return $this;
     }
 
     public function hasRenderer(): bool
     {
-        return !is_null($this->renderer);
+        return ! is_null($this->renderer);
     }
 
     public function resolveValue(mixed $row): mixed
@@ -97,10 +110,11 @@ class Column
     public function resolveCell(mixed $row): mixed
     {
         $value = $this->resolveValue($row);
-        
-        if($this->hasRenderer()) {
+
+        if ($this->hasRenderer()) {
             return ($this->renderer)($row, $value);
         }
+
         return $value;
     }
 }

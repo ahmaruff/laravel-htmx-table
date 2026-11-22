@@ -4,27 +4,41 @@ declare(strict_types=1);
 
 namespace Ahmaruff\HtmxTable;
 
-use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
-use Illuminate\Database\Query\Builder as QueryBuilder;
-use Illuminate\Http\Request;
-use Illuminate\Contracts\View\View;
-
 use Ahmaruff\HtmxTable\Exceptions\InvalidColumnException;
 use Ahmaruff\HtmxTable\Exceptions\MissingPaginationModeException;
+use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Builder as QueryBuilder;
+use Illuminate\Http\Request;
+use InvalidArgumentException;
 
+/**
+ * @phpstan-consistent-constructor
+ */
 class HtmxTable
 {
+    /** @var EloquentBuilder<Model>|QueryBuilder */
     private EloquentBuilder|QueryBuilder $builder;
 
     /** @var list<Column> */
     private array $columns = [];
+
     private ?string $paginationMode = null;
-    private ?int $paginationPerPage = null;
 
-    public const PAG_MODE_PAGINATE = "paginate";
-    public const PAG_MODE_SIMPLE = "simple-paginate";
-    public const PAG_MODE_CURSOR = "cursor";
+    private int $paginationPerPage;
 
+    private ?string $id = null;
+
+    public const string PAG_MODE_PAGINATE = 'paginate';
+
+    public const string PAG_MODE_SIMPLE = 'simple-paginate';
+
+    public const string PAG_MODE_CURSOR = 'cursor';
+
+    /**
+     * @param  EloquentBuilder<Model>|QueryBuilder  $builder
+     */
     public function __construct(EloquentBuilder|QueryBuilder $builder)
     {
         $this->builder = $builder;
@@ -35,25 +49,57 @@ class HtmxTable
             : 15;
     }
 
+    /**
+     * @param  EloquentBuilder<Model>|QueryBuilder  $builder
+     */
     public static function make(EloquentBuilder|QueryBuilder $builder): static
     {
         return new static($builder);
     }
 
+    /**
+     * @return EloquentBuilder<Model>|QueryBuilder
+     */
     public function getBuilder(): EloquentBuilder|QueryBuilder
     {
         return $this->builder;
     }
 
-    public function columns(array $columns): static
+    public function id(string $id): static
     {
-        foreach ($columns as $col) {
-            if(!$col instanceof Column) {
-                throw InvalidColumnException::invalidItems($col);
-            }
+        $id = trim($id);
+
+        if ($id === '') {
+            throw new InvalidArgumentException('Table id must be a non-empty string.');
         }
 
-        $this->columns = $columns;
+        $this->id = $id;
+
+        return $this;
+    }
+
+    public function getId(): ?string
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param  array<array-key, mixed>  $columns
+     */
+    public function columns(array $columns): static
+    {
+        $validated = [];
+
+        foreach ($columns as $col) {
+            if (! $col instanceof Column) {
+                throw InvalidColumnException::invalidItems($col);
+            }
+
+            $validated[] = $col;
+        }
+
+        $this->columns = $validated;
+
         return $this;
     }
 
@@ -68,6 +114,7 @@ class HtmxTable
     public function paginate(?int $perPage = null): static
     {
         $this->paginationMode = self::PAG_MODE_PAGINATE;
+
         if ($perPage !== null) {
             $this->paginationPerPage = $perPage;
         }
@@ -78,6 +125,7 @@ class HtmxTable
     public function simplePaginate(?int $perPage = null): static
     {
         $this->paginationMode = self::PAG_MODE_SIMPLE;
+
         if ($perPage !== null) {
             $this->paginationPerPage = $perPage;
         }
@@ -88,6 +136,7 @@ class HtmxTable
     public function cursorPaginate(?int $perPage = null): static
     {
         $this->paginationMode = self::PAG_MODE_CURSOR;
+
         if ($perPage !== null) {
             $this->paginationPerPage = $perPage;
         }
@@ -97,7 +146,7 @@ class HtmxTable
 
     public function getPaginationMode(): string
     {
-        if(is_null($this->paginationMode)) {
+        if (is_null($this->paginationMode)) {
             throw MissingPaginationModeException::missing($this->paginationMode);
         }
 
@@ -113,32 +162,24 @@ class HtmxTable
     {
         $request ??= request();
 
+        $mode = $this->getPaginationMode();
+        $state = TableState::fromRequest($request, $mode);
+
         $engine = new QueryEngine(
             $this->getBuilder(),
             $this->getColumns(),
-            $this->getPaginationMode(),
+            $state,
             $this->getPerPage(),
         );
 
-
-        $paginator = $engine->paginate($request);
-
-        $mode = $this->getPaginationMode();
-        $sortState = QueryEngine::getSortValue($request);
-        $paginationState = QueryEngine::getPaginationValue($request, $mode);
+        $paginator = $engine->paginate();
 
         return view('htmx-table::table', [
             'rows' => $paginator,
             'columns' => $this->getColumns(),
             'paginationMode' => $mode,
-            'perPage' => $this->getPerPage(),
-            'state' => [
-                'search' => QueryEngine::getSearchValue($request) ?? '',
-                'sort' => $sortState['sort'],
-                'dir' => $sortState['dir'],
-                'page' => $paginationState['page'],
-                'cursor' => $paginationState['cursor'],
-            ],
+            'state' => $state,
+            'id' => $this->getId(),
         ]);
     }
 }
