@@ -30,11 +30,11 @@ class HtmxTable
 
     private ?string $id = null;
 
-    public const string PAG_MODE_PAGINATE = 'paginate';
+    public const PAG_MODE_PAGINATE = 'paginate'; // @pest-ignore-type
 
-    public const string PAG_MODE_SIMPLE = 'simple-paginate';
+    public const PAG_MODE_SIMPLE = 'simple-paginate'; // @pest-ignore-type
 
-    public const string PAG_MODE_CURSOR = 'cursor';
+    public const PAG_MODE_CURSOR = 'cursor'; // @pest-ignore-type
 
     /**
      * @param  EloquentBuilder<Model>|QueryBuilder  $builder
