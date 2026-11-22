@@ -25,13 +25,16 @@ jobs:
         include:
           - php: '8.2'
             laravel: '10.*'
-            testbench: '8.*'
+            testbench: '^8.39'
+            pest: '^2.36'
           - php: '8.4'
             laravel: '12.*'
-            testbench: '10.*'
+            testbench: '^10.12'
+            pest: '^3.8 || ^4.6 || ^5.0'
           - php: '8.5'
             laravel: '13.*'
-            testbench: '11.*'
+            testbench: '^11.3'
+            pest: '^4.6 || ^5.0'
 
     name: Quality - P${{ matrix.php }} - L${{ matrix.laravel }}
 
@@ -55,13 +58,15 @@ jobs:
         run: |
           # Laravel 10/11 are EOL and have known advisories. Compatibility is still
           # tested; the latest lane runs `composer audit` below.
-          composer require --dev "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+          composer require --dev "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" "pestphp/pest:${{ matrix.pest }}" --no-interaction --no-update
           composer update --prefer-stable --prefer-dist --no-interaction --no-progress --no-scripts --no-security-blocking
 
-      - name: Prepare Testbench
+      - name: Prepare Testbench cache
         shell: bash
         run: |
-          php -r 'require "vendor/autoload.php"; $base = Orchestra\Testbench\default_skeleton_path(); if ($base === false) { fwrite(STDERR, "Unable to resolve Testbench skeleton path.\n"); exit(1); } $cache = $base.DIRECTORY_SEPARATOR."bootstrap".DIRECTORY_SEPARATOR."cache"; if (! is_dir($cache)) { mkdir($cache, 0777, true); } @chmod($cache, 0777);'
+          CACHE=vendor/orchestra/testbench-core/laravel/bootstrap/cache
+          mkdir -p "$CACHE"
+          chmod -R u+w "$CACHE" || true
           composer run prepare
 
       - name: Show resolved versions
@@ -92,13 +97,17 @@ jobs:
         stability: [prefer-lowest, prefer-stable]
         include:
           - laravel: '10.*'
-            testbench: '8.*'
+            testbench: '^8.39'
+            pest: '^2.36'
           - laravel: '11.*'
-            testbench: '9.*'
+            testbench: '^9.18'
+            pest: '^3.8 || ^4.6 || ^5.0'
           - laravel: '12.*'
-            testbench: '10.*'
+            testbench: '^10.12'
+            pest: '^3.8 || ^4.6 || ^5.0'
           - laravel: '13.*'
-            testbench: '11.*'
+            testbench: '^11.3'
+            pest: '^4.6 || ^5.0'
         exclude:
           - php: '8.4'
             laravel: '10.*'
@@ -126,16 +135,21 @@ jobs:
 
       - name: Install dependencies
         run: |
-          composer require --dev "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+          composer require --dev "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" "pestphp/pest:${{ matrix.pest }}" --no-interaction --no-update
           composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress --no-scripts --no-security-blocking
 
-      - name: Prepare Testbench
+      - name: Prepare Testbench cache
         shell: bash
         run: |
-          php -r 'require "vendor/autoload.php"; $base = Orchestra\Testbench\default_skeleton_path(); if ($base === false) { fwrite(STDERR, "Unable to resolve Testbench skeleton path.\n"); exit(1); } $cache = $base.DIRECTORY_SEPARATOR."bootstrap".DIRECTORY_SEPARATOR."cache"; if (! is_dir($cache)) { mkdir($cache, 0777, true); } @chmod($cache, 0777);'
+          CACHE=vendor/orchestra/testbench-core/laravel/bootstrap/cache
+          mkdir -p "$CACHE"
+          chmod -R u+w "$CACHE" || true
+
+      - name: Show resolved versions
+        run: composer show --direct
 
       - name: Test Suite
-        run: composer test:unit
+        run: vendor/bin/pest
 
   windows:
     runs-on: windows-latest
@@ -147,16 +161,20 @@ jobs:
         include:
           - php: '8.2'
             laravel: '10.*'
-            testbench: '8.*'
+            testbench: '^8.39'
+            pest: '^2.36'
           - php: '8.3'
             laravel: '11.*'
-            testbench: '9.*'
+            testbench: '^9.18'
+            pest: '^3.8 || ^4.6 || ^5.0'
           - php: '8.4'
             laravel: '12.*'
-            testbench: '10.*'
+            testbench: '^10.12'
+            pest: '^3.8 || ^4.6 || ^5.0'
           - php: '8.5'
             laravel: '13.*'
-            testbench: '11.*'
+            testbench: '^11.3'
+            pest: '^4.6 || ^5.0'
 
     name: Windows - P${{ matrix.php }} - L${{ matrix.laravel }}
 
@@ -175,13 +193,18 @@ jobs:
 
       - name: Install dependencies
         run: |
-          composer require --dev "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+          composer require --dev "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" "pestphp/pest:${{ matrix.pest }}" --no-interaction --no-update
           composer update --prefer-stable --prefer-dist --no-interaction --no-progress --no-scripts --no-security-blocking
 
-      - name: Prepare Testbench
+      - name: Prepare Testbench cache
         shell: bash
         run: |
-          php -r 'require "vendor/autoload.php"; $base = Orchestra\Testbench\default_skeleton_path(); if ($base === false) { fwrite(STDERR, "Unable to resolve Testbench skeleton path.\n"); exit(1); } $cache = $base.DIRECTORY_SEPARATOR."bootstrap".DIRECTORY_SEPARATOR."cache"; if (! is_dir($cache)) { mkdir($cache, 0777, true); } @chmod($cache, 0777);'
+          CACHE=vendor/orchestra/testbench-core/laravel/bootstrap/cache
+          mkdir -p "$CACHE"
+          chmod -R u+w "$CACHE" || true
+
+      - name: Show resolved versions
+        run: composer show --direct
 
       - name: Test Suite
         run: vendor/bin/pest
