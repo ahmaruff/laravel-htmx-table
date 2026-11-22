@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
- 
+
 Route::get('/demo-table', function (Request $request) {
     $requestedMode = $request->query('mode');
 
@@ -45,5 +45,41 @@ Route::get('/demo-table', function (Request $request) {
 
     return view('workbench-demo', [
         'tableHtml' => $table->render($request)->render(),
+    ]);
+});
+
+Route::get('/demo-tables', function (Request $request) {
+    $items = HtmxTable::make(DB::table('items'))
+        ->columns([
+            Column::make('id')->sortable(),
+            Column::make('name')->searchable()->sortable(),
+            Column::make('status')->searchable()->sortable(),
+        ])
+        ->paginate(5);
+
+    $compact = HtmxTable::make(DB::table('items'))
+        ->columns([
+            Column::make('sku')->searchable()->sortable(),
+            Column::make('status')->searchable()->sortable(),
+        ])
+        ->simplePaginate(3);
+
+    if ($request->header('HX-Request')) {
+        $selected = $request->query('table', 'items');
+
+        return $selected === 'compact'
+            ? $compact->render($request)
+            : $items->render($request);
+    }
+
+    $query = $request->query();
+
+    return view('workbench-multiple', [
+        'itemsTableHtml' => $items->render(
+            Request::create('/demo-tables', 'GET', [...$query, 'table' => 'items']),
+        )->render(),
+        'compactTableHtml' => $compact->render(
+            Request::create('/demo-tables', 'GET', [...$query, 'table' => 'compact']),
+        )->render(),
     ]);
 });
