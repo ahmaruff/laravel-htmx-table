@@ -4,10 +4,19 @@
     "description": "A lightweight server-driven table for Laravel using blade and HTMX",
     "keywords": [
         "laravel",
+        "htmx",
+        "table",
+        "datatable",
+        "blade",
         "ahmaruff",
         "laravel-htmx-table"
     ],
     "homepage": "https://github.com/ahmaruff/laravel-htmx-table",
+    "support": {
+        "issues": "https://github.com/ahmaruff/laravel-htmx-table/issues",
+        "source": "https://github.com/ahmaruff/laravel-htmx-table",
+        "docs": "https://github.com/ahmaruff/laravel-htmx-table/tree/main/docs"
+    },
     "license": "MIT",
     "authors": [
         {
@@ -66,10 +75,10 @@
             "vendor/bin/pint --parallel --test"
         ],
         "analyse": [
-            "vendor/bin/phpstan analyse"
+            "vendor/bin/phpstan analyse --memory-limit=1G"
         ],
         "test:types": [
-            "vendor/bin/pest --type-coverage --min=100"
+            "@php -d memory_limit=1G vendor/bin/pest --type-coverage --min=100"
         ],
         "test:unit": [
             "vendor/bin/pest --parallel"
