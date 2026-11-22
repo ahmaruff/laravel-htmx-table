@@ -213,9 +213,7 @@ class HtmxTable
     {
         $this->paginationMode = self::PAG_MODE_PAGINATE;
 
-        if ($perPage !== null) {
-            $this->paginationPerPage = $perPage;
-        }
+        $this->setPerPage($perPage);
 
         return $this;
     }
@@ -224,9 +222,7 @@ class HtmxTable
     {
         $this->paginationMode = self::PAG_MODE_SIMPLE;
 
-        if ($perPage !== null) {
-            $this->paginationPerPage = $perPage;
-        }
+        $this->setPerPage($perPage);
 
         return $this;
     }
@@ -235,9 +231,7 @@ class HtmxTable
     {
         $this->paginationMode = self::PAG_MODE_CURSOR;
 
-        if ($perPage !== null) {
-            $this->paginationPerPage = $perPage;
-        }
+        $this->setPerPage($perPage);
 
         return $this;
     }
@@ -347,6 +341,19 @@ class HtmxTable
             'searchPlaceholder' => $this->getSearchPlaceholder()
                 ?? (string) trans('htmx-table::messages.search.placeholder', [], $locale),
         ]);
+    }
+
+    private function setPerPage(?int $perPage): void
+    {
+        if ($perPage === null) {
+            return;
+        }
+
+        if ($perPage < 1) {
+            throw new InvalidArgumentException('Per-page value must be a positive integer.');
+        }
+
+        $this->paginationPerPage = $perPage;
     }
 
     private function resolvePerPage(?int $requestedPerPage): int

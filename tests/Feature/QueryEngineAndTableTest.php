@@ -11,6 +11,7 @@ use Ahmaruff\HtmxTable\HtmxTable;
 use Ahmaruff\HtmxTable\Tests\TestCase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use InvalidArgumentException;
 
 final class QueryEngineAndTableTest extends TestCase
 {
@@ -192,5 +193,26 @@ final class QueryEngineAndTableTest extends TestCase
         HtmxTable::make(DB::table('items'))
             ->columns([Column::make('name')])
             ->render(Request::create('/items'));
+    }
+
+    public function test_paginate_rejects_zero_per_page(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        HtmxTable::make(DB::table('items'))->paginate(0);
+    }
+
+    public function test_simple_paginate_rejects_negative_per_page(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        HtmxTable::make(DB::table('items'))->simplePaginate(-1);
+    }
+
+    public function test_cursor_paginate_rejects_zero_per_page(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        HtmxTable::make(DB::table('items'))->cursorPaginate(0);
     }
 }

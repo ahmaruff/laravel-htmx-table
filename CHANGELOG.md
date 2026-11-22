@@ -1,6 +1,8 @@
 # Release Notes
 
-## [Unreleased](https://github.com/ahmaruff/laravel-htmx-table/compare/v0.1.0...1.x)
+## [Unreleased](https://github.com/ahmaruff/laravel-htmx-table/compare/v0.1.0...HEAD)
+
+## [v0.1.0](https://github.com/ahmaruff/laravel-htmx-table/releases/tag/v0.1.0) - 2026-11-22
 
 ### Added
 
@@ -26,6 +28,7 @@
 - The stylesheet publish tag is now `htmx-table-assets`.
 - Publish tags in the README now match the service provider.
 - Pagination state now includes `per_page` when a per-page selector is enabled.
+- Pagination methods reject non-positive per-page values with `InvalidArgumentException`.
 - The sort indicator is dimmed until a column is actively sorted.
 
 ### Fixed
@@ -33,7 +36,3 @@
 - The workbench demo retains its pagination mode after search, sort, and pagination actions.
 - Invalid sort directions and pages are normalized consistently.
 - Browser back/forward no longer renders a table fragment as the whole page when using the documented route guard.
-
-## [v0.1.0](https://github.com/ahmaruff/laravel-htmx-table/compare/...v0.1.0) - 202x-xx-xx
-
-Initial pre-release.

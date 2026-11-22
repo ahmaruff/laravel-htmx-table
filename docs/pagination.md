@@ -42,6 +42,10 @@ Passing a value to the pagination method overrides it for that table:
 $table->paginate(50);
 ```
 
+Per-page values must be positive integers. Passing zero or a negative value to
+`paginate()`, `simplePaginate()`, or `cursorPaginate()` throws
+`InvalidArgumentException`.
+
 Enable a per-page selector explicitly:
 
 ```php

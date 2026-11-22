@@ -85,6 +85,9 @@ jobs:
       - name: Type Coverage
         run: composer test:types
 
+      - name: Workbench build
+        run: composer build
+
   tests:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -144,6 +147,7 @@ jobs:
           CACHE=vendor/orchestra/testbench-core/laravel/bootstrap/cache
           mkdir -p "$CACHE"
           chmod -R u+w "$CACHE" || true
+          composer run prepare
 
       - name: Show resolved versions
         run: composer show --direct
@@ -202,6 +206,7 @@ jobs:
           CACHE=vendor/orchestra/testbench-core/laravel/bootstrap/cache
           mkdir -p "$CACHE"
           chmod -R u+w "$CACHE" || true
+          composer run prepare
 
       - name: Show resolved versions
         run: composer show --direct
