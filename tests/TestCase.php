@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Ahmaruff\HtmxTable\Tests;
 
 use Ahmaruff\HtmxTable\HtmxTableServiceProvider;
-use Orchestra\Testbench\TestCase as Orchestra;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
+use Orchestra\Testbench\TestCase as Orchestra;
 
 abstract class TestCase extends Orchestra
 {
